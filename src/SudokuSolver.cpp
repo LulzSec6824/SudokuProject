@@ -188,7 +188,7 @@ bool SudokuSolver::loadFromFile(const std::string &filename) {
 
     clear();
     int tempGrid[GRID_SIZE][GRID_SIZE] = {
-        0}; // Temporary grid to avoid partial loading
+        {0}}; // Temporary grid to avoid partial loading
     std::string line;
     int row = 0;
 

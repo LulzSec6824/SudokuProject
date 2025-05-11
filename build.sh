@@ -11,7 +11,7 @@ cd build
 
 # Configure CMake with Clang
 export CC=clang
-export CXX=clang++
+export CXX=/usr/lib/llvm-19/bin/clang++
 cmake -DCMAKE_BUILD_TYPE=Release ..
 
 # Build the project using all available cores
