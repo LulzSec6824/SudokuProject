@@ -44,7 +44,13 @@ if(BUILD_TESTS)
     enable_testing()
     
     # Add test executable
-    add_executable(sudoku_tests tests/test_sudoku.cpp src/SudokuSolver.cpp)
+    add_executable(sudoku_tests 
+        tests/test_main.cpp
+        tests/test_game_logic.cpp
+        tests/test_performance.cpp
+        tests/test_sudoku_solver.cpp
+        src/SudokuSolver.cpp
+    )
     target_link_libraries(sudoku_tests gtest gtest_main)
     
     # Add test to CTest
