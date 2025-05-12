@@ -194,5 +194,5 @@ This project is licensed under the MIT License.
   <br>
   <br>
   
-  *Built with ❤️ and a bit of recursive magic*
+  *Built with [LOVE_FOR_SHONNA] and a bit of recursive magic*
 </div>
