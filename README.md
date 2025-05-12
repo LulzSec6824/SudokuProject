@@ -184,7 +184,7 @@ Contributions are welcome! Here's how you can help:
 
 ## 📜 License
 
-This project is licensed under the MIT License.
+This project is licensed under the GPLv3.0. See the [LICENSE](LICENSE.txt) file for details.cense.
 
 ---
 
