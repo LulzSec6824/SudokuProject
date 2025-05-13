@@ -4,7 +4,7 @@
 
 ![Sudoku Grid](https://img.shields.io/badge/9x9-Sudoku%20Grid-blue)
 ![C++17](https://img.shields.io/badge/C%2B%2B-17-00599C?logo=c%2B%2B)
-![License](https://img.shields.io/badge/License-MIT-green)
+![License](https://img.shields.io/badge/License-GPLv3-blue)
 ![Build System](https://img.shields.io/badge/Build%20System-CMake-064F8C?logo=cmake)
 
 **A lightning-fast Sudoku puzzle solver built with modern C++**  
