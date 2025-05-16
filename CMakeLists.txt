@@ -6,9 +6,20 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Set Clang as the compiler
-set(CMAKE_C_COMPILER "clang")
-set(CMAKE_CXX_COMPILER "/usr/lib/llvm-19/bin/clang++")
+# Set Clang as the compiler if not already specified
+if(NOT CMAKE_C_COMPILER)
+  find_program(CLANG_FOUND "clang")
+  if(CLANG_FOUND)
+    set(CMAKE_C_COMPILER "clang")
+  endif()
+endif()
+
+if(NOT CMAKE_CXX_COMPILER)
+  find_program(CLANGPP_FOUND "clang++")
+  if(CLANGPP_FOUND)
+    set(CMAKE_CXX_COMPILER "clang++")
+  endif()
+endif()
 
 # Enable interprocedural optimization (IPO/LTO)
 include(CheckIPOSupported)
@@ -68,10 +79,8 @@ set(SOURCES
 # Create executable
 add_executable(sudoku_solver ${SOURCES})
 
-# Add specific compiler definitions for the solver
-target_compile_definitions(sudoku_solver PRIVATE
-  NDEBUG
-)
+# Enable code coverage option
+option(ENABLE_COVERAGE "Enable coverage reporting" OFF)
 
 # Linker optimization flags
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -84,14 +93,14 @@ install(TARGETS sudoku_solver DESTINATION bin)
 # Testing configuration
 option(BUILD_TESTS "Build the tests" OFF)
 if(BUILD_TESTS)
-    # Use FetchContent to download and configure GoogleTest
+    # Use FetchContent to download and configure Catch2
     include(FetchContent)
     FetchContent_Declare(
-        googletest
-        GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG release-1.12.1
+        catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG v2.13.9
     )
-    FetchContent_MakeAvailable(googletest)
+    FetchContent_MakeAvailable(catch2)
     
     # Enable testing
     enable_testing()
@@ -104,7 +113,15 @@ if(BUILD_TESTS)
         tests/test_sudoku_solver.cpp
         src/SudokuSolver.cpp
     )
-    target_link_libraries(sudoku_tests gtest gtest_main)
+    
+    # Link with Catch2
+    target_link_libraries(sudoku_tests Catch2::Catch2)
+    
+    # Add coverage flags if enabled
+    if(ENABLE_COVERAGE)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+    endif()
     
     # Add test to CTest
     add_test(NAME SudokuTests COMMAND sudoku_tests)

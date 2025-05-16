@@ -39,7 +39,7 @@
 ```
 SudokuProject/
 ├── 📄 CMakeLists.txt         # CMake build configuration
-├── 📄 build.sh               # Build script for easy compilation
+├── 📄 build.sh               # Standard build script
 ├── 📄 optimize.sh            # Script for Profile-Guided Optimization
 ├── 📁 include/
 │   └── 📄 SudokuSolver.hpp   # Header file with class declaration
@@ -56,11 +56,27 @@ SudokuProject/
 
 ## 🚀 Quick Start
 
+### Standard Build
+
+```bash
+# Make the build script executable
+chmod +x build.sh
+
+# Build the project
+./build.sh
+
+# Run the application
+./build/sudoku_solver
+```
+
 ### Building with Tests
 
 ```bash
 # Build with tests
 ./build.sh --test
+
+# Run the tests
+./build/sudoku_tests
 ```
 
 ### High-Performance Optimized Build
@@ -69,10 +85,10 @@ For maximum performance, use the Profile-Guided Optimization script:
 
 ```bash
 # Make the script executable
-chmod +x build.sh
+chmod +x optimize.sh
 
 # Build with PGO optimization
-./build.sh
+./optimize.sh
 
 # Run the optimized version
 ./build_pgo/sudoku_solver
@@ -96,16 +112,32 @@ cmake --build . -- -j$(nproc)
 ./sudoku_solver
 ```
 
-### Running Tests
+### Manual Test Build
 
 ```bash
 # Build with tests enabled
 mkdir -p build && cd build
-cmake -DBUILD_TESTS=ON ..
-cmake --build .
+cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON ..
+cmake --build . -- -j$(nproc)
 
 # Run the tests
 ./sudoku_tests
+```
+
+### Code Coverage Build
+
+```bash
+# Build with coverage enabled
+mkdir -p build && cd build
+cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DENABLE_COVERAGE=ON ..
+cmake --build . -- -j$(nproc)
+
+# Run tests to generate coverage data
+./sudoku_tests
+
+# Generate coverage report (requires lcov)
+lcov --capture --directory . --output-file coverage.info
+genhtml coverage.info --output-directory coverage_report
 ```
 
 ## 🎮 Using the Solver
@@ -198,6 +230,24 @@ Run tests with:
 ./build.sh --test
 ```
 
+### Advanced Testing Options
+
+Catch2 provides several useful command-line options for running tests:
+
+```bash
+# Run tests with a specific tag
+./build/sudoku_tests "[solver]"
+
+# Run a specific test case
+./build/sudoku_tests "SudokuSolver can solve puzzles"
+
+# List all available tests
+./build/sudoku_tests --list-tests
+
+# Run tests in random order
+./build/sudoku_tests --order rand
+```
+
 ## 🤝 Contributing
 
 Contributions are welcome! Here's how you can help:
@@ -205,6 +255,15 @@ Contributions are welcome! Here's how you can help:
 - Improve the code with pull requests
 - Create more test cases or sample puzzles
 - Enhance documentation
+
+### Development Setup
+
+1. Fork the repository
+2. Clone your fork
+3. Set up pre-commit hooks (optional but recommended)
+4. Make your changes following our coding style
+5. Add tests for your changes
+6. Submit a pull request
 
 ## 📜 License
 
