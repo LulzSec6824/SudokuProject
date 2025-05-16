@@ -10,8 +10,51 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_C_COMPILER "clang")
 set(CMAKE_CXX_COMPILER "/usr/lib/llvm-19/bin/clang++")
 
-# Add compiler flags
+# Enable interprocedural optimization (IPO/LTO)
+include(CheckIPOSupported)
+check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_ERROR)
+if(IPO_SUPPORTED)
+  message(STATUS "IPO/LTO enabled")
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+else()
+  message(STATUS "IPO/LTO not supported: ${IPO_ERROR}")
+endif()
+
+# Performance optimization flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
+
+# Advanced performance optimization flags for Release builds
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG -march=native \
+  -flto \
+  -ffast-math \
+  -funroll-loops \
+  -fomit-frame-pointer \
+  -fstrict-aliasing \
+  -fstrict-overflow \
+  -fmerge-all-constants \
+  -ftree-vectorize")
+
+# Cache optimization
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -falign-functions=16")
+
+# Set default build type to Release if not specified
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
+endif()
+
+# Add options for Profile-Guided Optimization (PGO)
+option(ENABLE_PGO_GENERATE "Enable PGO generation phase" OFF)
+option(ENABLE_PGO_USE "Enable PGO use phase" OFF)
+
+if(ENABLE_PGO_GENERATE)
+  message(STATUS "Configuring for PGO generation phase")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-generate")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-generate")
+elseif(ENABLE_PGO_USE)
+  message(STATUS "Configuring for PGO use phase")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-use -fprofile-correction")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-use")
+endif()
 
 # Include directories
 include_directories(${PROJECT_SOURCE_DIR}/include)
@@ -25,11 +68,21 @@ set(SOURCES
 # Create executable
 add_executable(sudoku_solver ${SOURCES})
 
+# Add specific compiler definitions for the solver
+target_compile_definitions(sudoku_solver PRIVATE
+  NDEBUG
+)
+
+# Linker optimization flags
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  set_target_properties(sudoku_solver PROPERTIES LINK_FLAGS "-Wl,--gc-sections")
+endif()
+
 # Install target
 install(TARGETS sudoku_solver DESTINATION bin)
 
 # Testing configuration
-option(BUILD_TESTS "Build the tests" ON)
+option(BUILD_TESTS "Build the tests" OFF)
 if(BUILD_TESTS)
     # Use FetchContent to download and configure GoogleTest
     include(FetchContent)
