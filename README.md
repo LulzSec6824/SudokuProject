@@ -4,7 +4,11 @@
 
 ![Sudoku Grid](https://img.shields.io/badge/9x9-Sudoku%20Grid-blue)
 ![C++17](https://img.shields.io/badge/C%2B%2B-17-00599C?logo=c%2B%2B)
+<<<<<<< HEAD
 ![License](https://img.shields.io/badge/License-GPLv3-blue)
+=======
+![License](https://img.shields.io/badge/License-GPLv3-green)
+>>>>>>> ab7e194 (++ Added changes to Readme)
 ![Build System](https://img.shields.io/badge/Build%20System-CMake-064F8C?logo=cmake)
 
 **A lightning-fast Sudoku puzzle solver built with modern C++**  
@@ -23,7 +27,8 @@
 - 🚀 Solve any valid 9x9 Sudoku puzzle in milliseconds
 - 💻 Friendly interactive command-line interface
 - 💾 Load and save puzzles from/to files
-- 🧪 Comprehensive test suite with Google Test
+- 🧪 Comprehensive test suite with Catch2
+- ⚡ Advanced compiler optimizations for maximum performance
 - ✅ Robust input validation
 - 🔧 Clean, modular architecture with proper separation of concerns
 
@@ -31,7 +36,7 @@
 
 - 🔨 C++17 compatible compiler (Clang recommended)
 - 🏗️ CMake (minimum version 3.10)
-- 🧪 Google Test (automatically downloaded by CMake)
+- 🧪 Catch2 (automatically downloaded by CMake)
 
 ## 📂 Project Structure
 
@@ -39,6 +44,7 @@
 SudokuProject/
 ├── 📄 CMakeLists.txt         # CMake build configuration
 ├── 📄 build.sh               # Build script for easy compilation
+├── 📄 optimize.sh            # Script for Profile-Guided Optimization
 ├── 📁 include/
 │   └── 📄 SudokuSolver.hpp   # Header file with class declaration
 ├── 📁 src/
@@ -54,24 +60,26 @@ SudokuProject/
 
 ## 🚀 Quick Start
 
-### One-Click Build
-
-```bash
-# Make the build script executable
-chmod +x build.sh
-
-# Build the project
-./build.sh
-
-# Run the application
-./build/sudoku_solver
-```
-
 ### Building with Tests
 
 ```bash
 # Build with tests
 ./build.sh --test
+```
+
+### High-Performance Optimized Build
+
+For maximum performance, use the Profile-Guided Optimization script:
+
+```bash
+# Make the script executable
+chmod +x build.sh
+
+# Build with PGO optimization
+./build.sh
+
+# Run the optimized version
+./build_pgo/sudoku_solver
 ```
 
 ## 🛠️ Manual Build (For the DIY Enthusiasts)
@@ -101,7 +109,7 @@ cmake -DBUILD_TESTS=ON ..
 cmake --build .
 
 # Run the tests
-./tests/sudoku_tests
+./sudoku_tests
 ```
 
 ## 🎮 Using the Solver
@@ -161,9 +169,29 @@ Our solver uses a recursive backtracking algorithm:
   - Game logic tests
   - Performance tests for different difficulty levels
 
+## ⚡ Performance Optimizations
+
+The project includes several advanced performance optimizations:
+
+- **Link-Time Optimization (LTO)**: Enables whole-program optimization
+- **Profile-Guided Optimization (PGO)**: Optimizes based on real execution profiles
+- **Advanced Compiler Flags**:
+  - Fast math operations
+  - Loop unrolling
+  - Vector instructions (SIMD)
+  - Frame pointer omission
+  - Strict aliasing
+- **Cache Optimizations**: Improves CPU cache utilization
+- **Memory Optimizations**: Reduces memory footprint
+
+To build with these optimizations, use the provided `optimize.sh` script which:
+1. Builds an instrumented binary
+2. Generates a performance profile
+3. Rebuilds with optimizations based on the profile
+
 ## 🧪 Testing
 
-The project uses Google Test (automatically downloaded during CMake configuration) with several test categories:
+The project uses Catch2 testing framework with several test categories:
 
 - **Solver Tests**: Verify basic functionality of the Sudoku solver
 - **Game Logic Tests**: Test user interactions and move validation
@@ -184,7 +212,7 @@ Contributions are welcome! Here's how you can help:
 
 ## 📜 License
 
-This project is licensed under the GPLv3.0  See the [LICENSE](LICENSE.txt) file for details.cense.
+This project is licensed under the GPLv3.0. See the [LICENSE](LICENSE.txt) file for details.
 
 ---
 
