@@ -29,7 +29,7 @@
 
 ## 📋 Requirements
 
-- 🔨 C++17 compatible compiler (Clang recommended)
+- 🔨 C++17 compatible compiler (Clang recommended, MSVC or MinGW supported on Windows)
 - 🏗️ CMake (minimum version 3.10)
 - 🧪 Google Test (automatically downloaded by CMake)
 
@@ -76,7 +76,107 @@ chmod +x build.sh
 
 ## 🛠️ Manual Build (For the DIY Enthusiasts)
 
+### 🪟 Windows 11 with MinGW GCC
+
+#### Prerequisites
+
+1. **Install MSYS2**:
+   - Download and install MSYS2 from [https://www.msys2.org/](https://www.msys2.org/)
+   - Follow the installation instructions on the website
+
+2. **Install MinGW GCC and required tools**:
+   - Open MSYS2 UCRT64 terminal
+   - Run the following commands:
+
 ```bash
+# Update package database and core packages
+pacman -Syu
+
+# Install MinGW GCC, CMake, and Make
+pacman -S mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-make
+```
+
+3. **Add MinGW to your PATH**:
+   - Add `C:\msys64\ucrt64\bin` to your Windows PATH environment variable
+   - You can verify the installation by opening a new Command Prompt and typing:
+     ```
+g++ --version
+cmake --version
+```
+
+#### Building the Project
+
+Open Command Prompt or PowerShell, then:
+
+```powershell
+# Clone the repository (if you haven't already)
+# git clone https://github.com/yourusername/SudokuSolver.git
+# cd SudokuSolver
+
+# Create build directory
+mkdir build
+cd build
+
+# Configure with CMake using MinGW
+cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release ..
+
+# Build the project
+mingw32-make
+
+# Run the solver
+.\sudoku_solver.exe
+```
+
+### 🪟 Windows 11 with MSVC or Clang
+
+Alternatively, you can use MSVC (Visual Studio) or Clang on Windows:
+
+```powershell
+mkdir build
+cd build
+
+# For MSVC (default on Windows):
+cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ..
+nmake
+
+# For Clang (if installed):
+cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Release ..
+cmake --build . --config Release
+
+# Run the solver
+.\sudoku_solver.exe
+```
+
+### 🐧 Linux with Clang
+
+#### Prerequisites
+
+1. **Install required packages**:
+   ```bash
+   # For Ubuntu/Debian-based distributions
+   sudo apt update
+   sudo apt install clang cmake build-essential git
+   
+   # For Fedora
+   sudo dnf install clang cmake make gcc-c++ git
+   
+   # For Arch Linux
+   sudo pacman -S clang cmake make gcc git
+   ```
+
+2. **Verify installation**:
+   ```bash
+   clang++ --version
+   cmake --version
+   ```
+
+#### Building the Project
+
+```bash
+# Clone the repository (if you haven't already)
+# git clone https://github.com/LulzSec6824/SudokuSolver.git
+# cd SudokuSolver
+
 # Create and enter build directory
 mkdir -p build && cd build
 
@@ -92,16 +192,83 @@ cmake --build . -- -j$(nproc)
 ./sudoku_solver
 ```
 
-### Running Tests
+#### Using the build.sh Script
+
+Alternatively, you can use the provided build script:
 
 ```bash
-# Build with tests enabled
+# Make the script executable
+chmod +x build.sh
+
+# Build the project
+./build.sh
+
+# Run the solver
+./build/sudoku_solver
+```
+
+### Running Tests
+
+#### Windows (MinGW GCC)
+
+```powershell
+# Create build directory
+mkdir build
+cd build
+
+# Configure with tests enabled
+cmake -G "MinGW Makefiles" -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release ..
+
+# Build the project and tests
+mingw32-make
+
+# Run the tests
+.\tests\sudoku_tests.exe
+```
+
+#### Windows (MSVC)
+
+```powershell
+# Create build directory
+mkdir build
+cd build
+
+# Configure with tests enabled
+cmake -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release ..
+
+# Build the project and tests
+cmake --build . --config Release
+
+# Run the tests
+.\tests\Release\sudoku_tests.exe
+```
+
+#### Linux (Clang)
+
+```bash
+# Create build directory
 mkdir -p build && cd build
-cmake -DBUILD_TESTS=ON ..
-cmake --build .
+
+# Configure with tests enabled
+export CC=clang
+export CXX=clang++
+cmake -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release ..
+
+# Build the project and tests
+cmake --build . -- -j$(nproc)
 
 # Run the tests
 ./tests/sudoku_tests
+```
+
+#### Using the build.sh Script with Tests
+
+```bash
+# Make the script executable
+chmod +x build.sh
+
+# Build and run tests
+./build.sh --test
 ```
 
 ## 🎮 Using the Solver
@@ -173,6 +340,52 @@ Run tests with:
 ```bash
 ./build.sh --test
 ```
+
+## 🔧 Troubleshooting
+
+### Common Build Issues
+
+#### Windows
+
+1. **CMake not found**
+   - Ensure CMake is properly installed and added to your PATH
+   - Verify with `cmake --version` in Command Prompt
+
+2. **MinGW/GCC not found**
+   - Check that MinGW is installed correctly via MSYS2
+   - Verify PATH includes `C:\msys64\ucrt64\bin`
+   - Test with `g++ --version`
+
+3. **Build fails with "The C compiler identification is unknown"**
+   - Make sure you're using the correct generator for your compiler
+   - For MinGW: Use `-G "MinGW Makefiles"`
+   - For MSVC: Use default or `-G "NMake Makefiles"`
+
+4. **Missing libraries or headers**
+   - Install required development packages via MSYS2 pacman
+
+#### Linux
+
+1. **Clang not found**
+   - Install with `sudo apt install clang` (Ubuntu/Debian)
+   - Verify with `clang++ --version`
+
+2. **CMake errors**
+   - Ensure you have the minimum required version (3.10)
+   - Update with `sudo apt install cmake` or equivalent
+
+3. **Permission denied when running build.sh**
+   - Make the script executable: `chmod +x build.sh`
+
+4. **Missing development libraries**
+   - Install build essentials: `sudo apt install build-essential`
+
+### Getting Help
+
+If you encounter issues not covered here, please:
+1. Check the error messages carefully
+2. Search online for specific error codes
+3. Open an issue in the project repository with detailed information about your environment and the error
 
 ## 🤝 Contributing
 
