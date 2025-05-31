@@ -1,4 +1,4 @@
 /.vscode
 /build
 /.cache
-/build_pgo
+/build_pgo_optimized

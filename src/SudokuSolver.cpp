@@ -1,4 +1,4 @@
-#include "../include/SudokuSolver.hpp"
+#include "../include/sudokusolver.hpp"
 
 #include <fstream>
 #include <iostream>

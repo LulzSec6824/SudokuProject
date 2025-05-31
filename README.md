@@ -31,70 +31,103 @@
 ## 📋 Requirements
 
 - 🔨 C++17 compatible compiler (Clang recommended, MSVC or MinGW supported on Windows)
-- 🏗️ CMake (minimum version 3.10)
-<<<<<<< HEAD
-=======
-- 🧪 Catch2 (automatically downloaded by CMake)
->>>>>>> f6eb4e2173144acf5b784b14a4cdd56c0e2bd0a9
+- 🏗️ CMake (minimum version 4.0.1 recommended, 3.10 might work but newer is better for modern features)
+- 🧪 Catch2 (automatically downloaded by CMake if tests are enabled, though current CMakeLists.txt does not show test-specific targets like `sudoku_tests` or options like `BUILD_TESTS` being actively used beyond PGO script disabling it. This might need review if tests are a core feature to be documented here.)
 
-## 📂 Project Structure
+## Project Structure
+
+The project is organized as follows:
 
 ```
-SudokuProject/
-├── 📄 CMakeLists.txt         # CMake build configuration
-├── 📄 build.sh               # Standard build script
-├── 📄 optimize.sh            # Script for Profile-Guided Optimization
-├── 📁 include/
-│   └── 📄 SudokuSolver.hpp   # Header file with class declaration
-├── 📁 src/
-│   ├── 📄 main.cpp           # Main application entry point
-│   └── 📄 SudokuSolver.cpp   # Implementation of the Sudoku solver
-└── 📄 README.md              # You are here! 👋
+├── .clang-format
+├── .gitignore
+├── CMakeLists.txt
+├── LICENSE.txt
+├── README.md
+├── include\
+│   └── sudokusolver.hpp
+├── opt.sh
+└── src\
+    ├── main.cpp
+    └── sudokusolver.cpp
 ```
 
-## 🚀 Quick Start
+## Building the Project
 
-### Standard Build
+To build the project, you can use the provided `opt.sh` script for optimized builds or configure manually using CMake.
+
+### Using `opt.sh`
+
+Run the following command to build with optimizations:
 
 ```bash
-# Make the build script executable
-chmod +x build.sh
-
-# Build the project
-./build.sh
-
-# Run the application
-./build/sudoku_solver
+./opt.sh
 ```
 
-<<<<<<< HEAD
-=======
-### Building with Tests
+### Manual Build
+
+1. Create a build directory:
+
+   ```bash
+   mkdir build && cd build
+   ```
+
+2. Configure the project:
+
+   ```bash
+   cmake ..
+   ```
+
+3. Build the project:
+
+   ```bash
+   cmake --build .
+   ```
+
+## Running the Solver
+
+After building, you can run the Sudoku solver executable located in the `build` directory.
 
 ```bash
-# Build with tests
-./build.sh --test
-
-# Run the tests
-./build/sudoku_tests
+./SudokuSolver
 ```
 
-### High-Performance Optimized Build
+## License
 
-For maximum performance, use the Profile-Guided Optimization script:
+This project is licensed under the MIT License. See the `LICENSE.txt` file for details.
+
+(If you have a `build.sh` script, its usage would be documented here. The example above shows direct CMake usage.)
+
+### High-Performance Optimized Build (using opt.sh)
+
+For maximum performance, use the Profile-Guided Optimization (PGO) script `opt.sh`. This script also allows enabling other compiler optimizations.
 
 ```bash
 # Make the script executable
-chmod +x optimize.sh
+chmod +x opt.sh
 
-# Build with PGO optimization
-./optimize.sh
+# Build with PGO and other default optimizations
+./opt.sh
 
-# Run the optimized version
-./build_pgo/sudoku_solver
+# Run the optimized version (default build directory: build_pgo_optimized)
+./build_pgo_optimized/sudoku_solver 
+# Or on Windows: ./build_pgo_optimized/Release/sudoku_solver.exe
 ```
 
->>>>>>> f6eb4e2173144acf5b784b14a4cdd56c0e2bd0a9
+**Customizing the optimized build:**
+
+The `opt.sh` script supports several options:
+
+-   `--no-native-opts`: Disable architecture-specific optimizations (like `-march=native`).
+-   `--no-fast-math`: Disable aggressive floating-point optimizations (like `-ffast-math`).
+-   `--build-dir <name>`: Specify a custom build directory name.
+-   `--generator <CMake Generator>`: Specify a CMake generator (e.g., "Unix Makefiles", "Ninja Multi-Config").
+
+Example:
+```bash
+./opt.sh --no-native-opts --build-dir my_custom_build --generator "Unix Makefiles"
+```
+This will build in `my_custom_build` without native CPU optimizations, using Unix Makefiles.
 ## 🛠️ Manual Build (For the DIY Enthusiasts)
 
 ### 🪟 Windows 11 with MinGW GCC
@@ -213,36 +246,6 @@ cmake --build . -- -j$(nproc)
 ./sudoku_solver
 ```
 
-<<<<<<< HEAD
-=======
-### Manual Test Build
-
-```bash
-# Build with tests enabled
-mkdir -p build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON ..
-cmake --build . -- -j$(nproc)
-
-# Run the tests
-./sudoku_tests
-```
-
-### Code Coverage Build
-
-```bash
-# Build with coverage enabled
-mkdir -p build && cd build
-cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DENABLE_COVERAGE=ON ..
-cmake --build . -- -j$(nproc)
-
-# Run tests to generate coverage data
-./sudoku_tests
-
-# Generate coverage report (requires lcov)
-lcov --capture --directory . --output-file coverage.info
-genhtml coverage.info --output-directory coverage_report
-```
->>>>>>> f6eb4e2173144acf5b784b14a4cdd56c0e2bd0a9
 
 ## 🎮 Using the Solver
 
@@ -298,11 +301,6 @@ Our solver uses a recursive backtracking algorithm:
 - Constants `GRID_SIZE` (9) and `BOX_SIZE` (3) define the puzzle dimensions
 ## 🔧 Troubleshooting
 
-<<<<<<< HEAD
-### Common Build Issues
-
-#### Windows
-=======
 ## ⚡ Performance Optimizations
 
 The project includes several advanced performance optimizations:
@@ -326,7 +324,6 @@ To build with these optimizations, use the provided `optimize.sh` script which:
 ## 🧪 Testing
 
 The project uses Catch2 testing framework with several test categories:
->>>>>>> f6eb4e2173144acf5b784b14a4cdd56c0e2bd0a9
 
 1. **CMake not found**
    - Ensure CMake is properly installed and added to your PATH
