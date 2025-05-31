@@ -23,7 +23,6 @@
 - 🚀 Solve any valid 9x9 Sudoku puzzle in milliseconds
 - 💻 Friendly interactive command-line interface
 - 💾 Load and save puzzles from/to files
-- 🧪 Comprehensive test suite with Google Test
 - ✅ Robust input validation
 - 🔧 Clean, modular architecture with proper separation of concerns
 
@@ -31,7 +30,6 @@
 
 - 🔨 C++17 compatible compiler (Clang recommended, MSVC or MinGW supported on Windows)
 - 🏗️ CMake (minimum version 3.10)
-- 🧪 Google Test (automatically downloaded by CMake)
 
 ## 📂 Project Structure
 
@@ -44,11 +42,6 @@ SudokuProject/
 ├── 📁 src/
 │   ├── 📄 main.cpp           # Main application entry point
 │   └── 📄 SudokuSolver.cpp   # Implementation of the Sudoku solver
-├── 📁 tests/
-│   ├── 📄 test_game_logic.cpp    # Game logic tests
-│   ├── 📄 test_main.cpp          # Test runner
-│   ├── 📄 test_performance.cpp   # Performance tests
-│   └── 📄 test_sudoku_solver.cpp # Solver tests
 └── 📄 README.md              # You are here! 👋
 ```
 
@@ -65,13 +58,6 @@ chmod +x build.sh
 
 # Run the application
 ./build/sudoku_solver
-```
-
-### Building with Tests
-
-```bash
-# Build with tests
-./build.sh --test
 ```
 
 ## 🛠️ Manual Build (For the DIY Enthusiasts)
@@ -110,7 +96,7 @@ Open Command Prompt or PowerShell, then:
 
 ```powershell
 # Clone the repository (if you haven't already)
-# git clone https://github.com/yourusername/SudokuSolver.git
+# git clone https://github.com/LulzSec6824/SudokuSolver.git
 # cd SudokuSolver
 
 # Create build directory
@@ -127,7 +113,7 @@ mingw32-make
 .\sudoku_solver.exe
 ```
 
-### 🪟 Windows 11 with MSVC or Clang
+### 🪟 Windows 10 / Windows 11 with MSVC or Clang
 
 Alternatively, you can use MSVC (Visual Studio) or Clang on Windows:
 
@@ -192,84 +178,6 @@ cmake --build . -- -j$(nproc)
 ./sudoku_solver
 ```
 
-#### Using the build.sh Script
-
-Alternatively, you can use the provided build script:
-
-```bash
-# Make the script executable
-chmod +x build.sh
-
-# Build the project
-./build.sh
-
-# Run the solver
-./build/sudoku_solver
-```
-
-### Running Tests
-
-#### Windows (MinGW GCC)
-
-```powershell
-# Create build directory
-mkdir build
-cd build
-
-# Configure with tests enabled
-cmake -G "MinGW Makefiles" -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release ..
-
-# Build the project and tests
-mingw32-make
-
-# Run the tests
-.\tests\sudoku_tests.exe
-```
-
-#### Windows (MSVC)
-
-```powershell
-# Create build directory
-mkdir build
-cd build
-
-# Configure with tests enabled
-cmake -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release ..
-
-# Build the project and tests
-cmake --build . --config Release
-
-# Run the tests
-.\tests\Release\sudoku_tests.exe
-```
-
-#### Linux (Clang)
-
-```bash
-# Create build directory
-mkdir -p build && cd build
-
-# Configure with tests enabled
-export CC=clang
-export CXX=clang++
-cmake -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release ..
-
-# Build the project and tests
-cmake --build . -- -j$(nproc)
-
-# Run the tests
-./tests/sudoku_tests
-```
-
-#### Using the build.sh Script with Tests
-
-```bash
-# Make the script executable
-chmod +x build.sh
-
-# Build and run tests
-./build.sh --test
-```
 
 ## 🎮 Using the Solver
 
@@ -323,24 +231,6 @@ Our solver uses a recursive backtracking algorithm:
   - Solving algorithms
   - Grid manipulation and display
 - Constants `GRID_SIZE` (9) and `BOX_SIZE` (3) define the puzzle dimensions
-- Test suite includes:
-  - Basic solver tests
-  - Game logic tests
-  - Performance tests for different difficulty levels
-
-## 🧪 Testing
-
-The project uses Google Test (automatically downloaded during CMake configuration) with several test categories:
-
-- **Solver Tests**: Verify basic functionality of the Sudoku solver
-- **Game Logic Tests**: Test user interactions and move validation
-- **Performance Tests**: Ensure the solver performs efficiently on puzzles of different difficulties
-
-Run tests with:
-```bash
-./build.sh --test
-```
-
 ## 🔧 Troubleshooting
 
 ### Common Build Issues
@@ -371,7 +261,7 @@ Run tests with:
    - Verify with `clang++ --version`
 
 2. **CMake errors**
-   - Ensure you have the minimum required version (3.10)
+   - Ensure you have the minimum required version (4.0.1)
    - Update with `sudo apt install cmake` or equivalent
 
 3. **Permission denied when running build.sh**
@@ -392,7 +282,7 @@ If you encounter issues not covered here, please:
 Contributions are welcome! Here's how you can help:
 - Report bugs and suggest features by opening an issue
 - Improve the code with pull requests
-- Create more test cases or sample puzzles
+- Create more sample puzzles
 - Enhance documentation
 
 ## 📜 License
@@ -403,9 +293,7 @@ This project is licensed under the GPLv3.0  See the [LICENSE](LICENSE.txt) file 
 
 <div align="center">
   <b>Happy Solving! 🎉</b>
-  
+
   <br>
-  <br>
-  
-  *Built with [ A cpp newbie brain ] and a bit of recursive magic*
+  <b>** Built with [ Cpp newbie brain ] and a bit of recursive magic **</b>
 </div>

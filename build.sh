@@ -9,25 +9,22 @@ set -e
 mkdir -p build
 cd build
 
-# Configure CMake with Clang
-export CC=clang
-export CXX=/usr/lib/llvm-19/bin/clang++
+# Configure CMake
+# Allow CMake to find the default C/C++ compilers
+# If you want to specify Clang, ensure it's in your PATH or use CMake toolchain files
+# export CC=clang
+# export CXX=clang++
 cmake -DCMAKE_BUILD_TYPE=Release ..
 
-# Build the project using all available cores
-cmake --build . -- -j$(nproc)
-
-# Return to project root
-cd ..
-
-# Run tests if requested
-if [ "$1" == "--test" ]; then
-    cd build
-    ctest --output-on-failure
-    cd ..
+# Detect generator and build accordingly
+GENERATOR=$(cmake -LA -N .. 2>/dev/null | grep CMAKE_GENERATOR: | cut -d'=' -f2)
+if [[ "$GENERATOR" == *"Ninja"* || "$GENERATOR" == *"Makefiles"* ]]; then
+    cmake --build . -- -j$(nproc)
+else
+    cmake --build .
 fi
 
-echo ""
+cd ..
 echo "Build completed successfully!"
 echo "To run the application: ./build/sudoku_solver"
 echo ""

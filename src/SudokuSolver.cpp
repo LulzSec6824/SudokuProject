@@ -1,7 +1,9 @@
 #include "../include/SudokuSolver.hpp"
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <vector>  // Added for std::vector<bool> in isValidPuzzle
 
 SudokuSolver::SudokuSolver() { clear(); }
 
@@ -24,7 +26,7 @@ int SudokuSolver::getCell(int row, int col) const {
     if (row >= 0 && row < GRID_SIZE && col >= 0 && col < GRID_SIZE) {
         return grid[row][col];
     }
-    return -1; // Invalid cell
+    return -1;  // Invalid cell
 }
 
 bool SudokuSolver::isSafe(int row, int col, int num) const {
@@ -57,7 +59,7 @@ bool SudokuSolver::isSafe(int row, int col, int num) const {
     return true;
 }
 
-bool SudokuSolver::findEmptyCell(int &row, int &col) const {
+bool SudokuSolver::findEmptyCell(int& row, int& col) const {
     for (row = 0; row < GRID_SIZE; row++) {
         for (col = 0; col < GRID_SIZE; col++) {
             if (grid[row][col] == 0) {
@@ -179,7 +181,7 @@ void SudokuSolver::setGridFromUserInput() {
     }
 }
 
-bool SudokuSolver::loadFromFile(const std::string &filename) {
+bool SudokuSolver::loadFromFile(const std::string& filename) {
     std::ifstream file(filename);
     if (!file) {
         std::cerr << "Error: Could not open file " << filename << std::endl;
@@ -188,7 +190,7 @@ bool SudokuSolver::loadFromFile(const std::string &filename) {
 
     clear();
     int tempGrid[GRID_SIZE][GRID_SIZE] = {
-        {0}}; // Temporary grid to avoid partial loading
+        {0}};  // Temporary grid to avoid partial loading
     std::string line;
     int row = 0;
 
@@ -243,7 +245,7 @@ bool SudokuSolver::loadFromFile(const std::string &filename) {
     return true;
 }
 
-bool SudokuSolver::saveToFile(const std::string &filename) const {
+bool SudokuSolver::saveToFile(const std::string& filename) const {
     std::ofstream file(filename);
     if (!file) {
         return false;
@@ -254,39 +256,53 @@ bool SudokuSolver::saveToFile(const std::string &filename) const {
 }
 
 bool SudokuSolver::isValidPuzzle() const {
-    // Check each cell for validity without modifying the grid
-    for (int i = 0; i < GRID_SIZE; i++) {
-        for (int j = 0; j < GRID_SIZE; j++) {
+    // Check rows for duplicates
+    for (int i = 0; i < GRID_SIZE; ++i) {
+        std::vector<bool> seen(GRID_SIZE + 1, false);
+        for (int j = 0; j < GRID_SIZE; ++j) {
             int num = grid[i][j];
             if (num != 0) {
-                // Check if this number appears elsewhere in the row
-                for (int col = 0; col < GRID_SIZE; col++) {
-                    if (col != j && grid[i][col] == num) {
-                        return false;
-                    }
+                if (seen[num]) {
+                    return false;  // Duplicate in row
                 }
+                seen[num] = true;
+            }
+        }
+    }
 
-                // Check if this number appears elsewhere in the column
-                for (int row = 0; row < GRID_SIZE; row++) {
-                    if (row != i && grid[row][j] == num) {
-                        return false;
-                    }
+    // Check columns for duplicates
+    for (int j = 0; j < GRID_SIZE; ++j) {
+        std::vector<bool> seen(GRID_SIZE + 1, false);
+        for (int i = 0; i < GRID_SIZE; ++i) {
+            int num = grid[i][j];
+            if (num != 0) {
+                if (seen[num]) {
+                    return false;  // Duplicate in column
                 }
+                seen[num] = true;
+            }
+        }
+    }
 
-                // Check if this number appears elsewhere in the 3x3 box
-                int boxStartRow = i - i % BOX_SIZE;
-                int boxStartCol = j - j % BOX_SIZE;
-                for (int row = boxStartRow; row < boxStartRow + BOX_SIZE;
-                     row++) {
-                    for (int col = boxStartCol; col < boxStartCol + BOX_SIZE;
-                         col++) {
-                        if ((row != i || col != j) && grid[row][col] == num) {
-                            return false;
+    // Check 3x3 boxes for duplicates
+    for (int boxRow = 0; boxRow < BOX_SIZE; ++boxRow) {
+        for (int boxCol = 0; boxCol < BOX_SIZE; ++boxCol) {
+            std::vector<bool> seen(GRID_SIZE + 1, false);
+            for (int i = boxRow * BOX_SIZE; i < boxRow * BOX_SIZE + BOX_SIZE;
+                 ++i) {
+                for (int j = boxCol * BOX_SIZE;
+                     j < boxCol * BOX_SIZE + BOX_SIZE; ++j) {
+                    int num = grid[i][j];
+                    if (num != 0) {
+                        if (seen[num]) {
+                            return false;  // Duplicate in box
                         }
+                        seen[num] = true;
                     }
                 }
             }
         }
     }
+
     return true;
 }
