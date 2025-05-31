@@ -19,29 +19,65 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Compiler selection (primarily for native builds, toolchain file handles cross-compilers)
-if (WIN32)
-    # Use MSVC by default on Windows, but allow MinGW or Clang if specified
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-        message(STATUS "Using MSVC on Windows.")
-    else(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        message(STATUS "Using MinGW GCC on Windows.")
-    endif()
-else()
-    # For non-Windows, let CMake find the default C and CXX compilers
-    # Or explicitly set them if needed, e.g.:
-    # set(CMAKE_C_COMPILER "gcc")
-    # set(CMAKE_CXX_COMPILER "g++")
-    message(STATUS "Using default C/CXX compilers for non-Windows OS.")
+# Set Clang as the compiler if not already specified
+if(NOT CMAKE_C_COMPILER)
+  find_program(CLANG_FOUND "clang")
+  if(CLANG_FOUND)
+    set(CMAKE_C_COMPILER "clang")
+  endif()
 endif()
 
-# Add compiler flags
-if (MSVC)
-    # MSVC compiler flags
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+if(NOT CMAKE_CXX_COMPILER)
+  find_program(CLANGPP_FOUND "clang++")
+  if(CLANGPP_FOUND)
+    set(CMAKE_CXX_COMPILER "clang++")
+  endif()
+endif()
+
+# Enable interprocedural optimization (IPO/LTO)
+include(CheckIPOSupported)
+check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_ERROR)
+if(IPO_SUPPORTED)
+  message(STATUS "IPO/LTO enabled")
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 else()
-    # GCC/Clang compiler flags
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
+  message(STATUS "IPO/LTO not supported: ${IPO_ERROR}")
+endif()
+
+# Performance optimization flags
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
+
+# Advanced performance optimization flags for Release builds
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG -march=native \
+  -flto \
+  -ffast-math \
+  -funroll-loops \
+  -fomit-frame-pointer \
+  -fstrict-aliasing \
+  -fstrict-overflow \
+  -fmerge-all-constants \
+  -ftree-vectorize")
+
+# Cache optimization
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -falign-functions=16")
+
+# Set default build type to Release if not specified
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
+endif()
+
+# Add options for Profile-Guided Optimization (PGO)
+option(ENABLE_PGO_GENERATE "Enable PGO generation phase" OFF)
+option(ENABLE_PGO_USE "Enable PGO use phase" OFF)
+
+if(ENABLE_PGO_GENERATE)
+  message(STATUS "Configuring for PGO generation phase")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-generate")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-generate")
+elseif(ENABLE_PGO_USE)
+  message(STATUS "Configuring for PGO use phase")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-use -fprofile-correction")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-use")
 endif()
 
 # Include directories
@@ -55,6 +91,14 @@ set(SOURCES
 
 # Create executable
 add_executable(sudoku_solver ${SOURCES})
+
+# Enable code coverage option
+option(ENABLE_COVERAGE "Enable coverage reporting" OFF)
+
+# Linker optimization flags
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  set_target_properties(sudoku_solver PROPERTIES LINK_FLAGS "-Wl,--gc-sections")
+endif()
 
 # Install target
 install(TARGETS sudoku_solver DESTINATION bin)

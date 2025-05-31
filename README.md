@@ -23,6 +23,8 @@
 - 🚀 Solve any valid 9x9 Sudoku puzzle in milliseconds
 - 💻 Friendly interactive command-line interface
 - 💾 Load and save puzzles from/to files
+- 🧪 Comprehensive test suite with Catch2
+- ⚡ Advanced compiler optimizations for maximum performance
 - ✅ Robust input validation
 - 🔧 Clean, modular architecture with proper separation of concerns
 
@@ -30,13 +32,18 @@
 
 - 🔨 C++17 compatible compiler (Clang recommended, MSVC or MinGW supported on Windows)
 - 🏗️ CMake (minimum version 3.10)
+<<<<<<< HEAD
+=======
+- 🧪 Catch2 (automatically downloaded by CMake)
+>>>>>>> f6eb4e2173144acf5b784b14a4cdd56c0e2bd0a9
 
 ## 📂 Project Structure
 
 ```
 SudokuProject/
 ├── 📄 CMakeLists.txt         # CMake build configuration
-├── 📄 build.sh               # Build script for easy compilation
+├── 📄 build.sh               # Standard build script
+├── 📄 optimize.sh            # Script for Profile-Guided Optimization
 ├── 📁 include/
 │   └── 📄 SudokuSolver.hpp   # Header file with class declaration
 ├── 📁 src/
@@ -47,7 +54,7 @@ SudokuProject/
 
 ## 🚀 Quick Start
 
-### One-Click Build
+### Standard Build
 
 ```bash
 # Make the build script executable
@@ -60,6 +67,34 @@ chmod +x build.sh
 ./build/sudoku_solver
 ```
 
+<<<<<<< HEAD
+=======
+### Building with Tests
+
+```bash
+# Build with tests
+./build.sh --test
+
+# Run the tests
+./build/sudoku_tests
+```
+
+### High-Performance Optimized Build
+
+For maximum performance, use the Profile-Guided Optimization script:
+
+```bash
+# Make the script executable
+chmod +x optimize.sh
+
+# Build with PGO optimization
+./optimize.sh
+
+# Run the optimized version
+./build_pgo/sudoku_solver
+```
+
+>>>>>>> f6eb4e2173144acf5b784b14a4cdd56c0e2bd0a9
 ## 🛠️ Manual Build (For the DIY Enthusiasts)
 
 ### 🪟 Windows 11 with MinGW GCC
@@ -178,6 +213,36 @@ cmake --build . -- -j$(nproc)
 ./sudoku_solver
 ```
 
+<<<<<<< HEAD
+=======
+### Manual Test Build
+
+```bash
+# Build with tests enabled
+mkdir -p build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON ..
+cmake --build . -- -j$(nproc)
+
+# Run the tests
+./sudoku_tests
+```
+
+### Code Coverage Build
+
+```bash
+# Build with coverage enabled
+mkdir -p build && cd build
+cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DENABLE_COVERAGE=ON ..
+cmake --build . -- -j$(nproc)
+
+# Run tests to generate coverage data
+./sudoku_tests
+
+# Generate coverage report (requires lcov)
+lcov --capture --directory . --output-file coverage.info
+genhtml coverage.info --output-directory coverage_report
+```
+>>>>>>> f6eb4e2173144acf5b784b14a4cdd56c0e2bd0a9
 
 ## 🎮 Using the Solver
 
@@ -233,9 +298,35 @@ Our solver uses a recursive backtracking algorithm:
 - Constants `GRID_SIZE` (9) and `BOX_SIZE` (3) define the puzzle dimensions
 ## 🔧 Troubleshooting
 
+<<<<<<< HEAD
 ### Common Build Issues
 
 #### Windows
+=======
+## ⚡ Performance Optimizations
+
+The project includes several advanced performance optimizations:
+
+- **Link-Time Optimization (LTO)**: Enables whole-program optimization
+- **Profile-Guided Optimization (PGO)**: Optimizes based on real execution profiles
+- **Advanced Compiler Flags**:
+  - Fast math operations
+  - Loop unrolling
+  - Vector instructions (SIMD)
+  - Frame pointer omission
+  - Strict aliasing
+- **Cache Optimizations**: Improves CPU cache utilization
+- **Memory Optimizations**: Reduces memory footprint
+
+To build with these optimizations, use the provided `optimize.sh` script which:
+1. Builds an instrumented binary
+2. Generates a performance profile
+3. Rebuilds with optimizations based on the profile
+
+## 🧪 Testing
+
+The project uses Catch2 testing framework with several test categories:
+>>>>>>> f6eb4e2173144acf5b784b14a4cdd56c0e2bd0a9
 
 1. **CMake not found**
    - Ensure CMake is properly installed and added to your PATH
@@ -277,6 +368,24 @@ If you encounter issues not covered here, please:
 2. Search online for specific error codes
 3. Open an issue in the project repository with detailed information about your environment and the error
 
+### Advanced Testing Options
+
+Catch2 provides several useful command-line options for running tests:
+
+```bash
+# Run tests with a specific tag
+./build/sudoku_tests "[solver]"
+
+# Run a specific test case
+./build/sudoku_tests "SudokuSolver can solve puzzles"
+
+# List all available tests
+./build/sudoku_tests --list-tests
+
+# Run tests in random order
+./build/sudoku_tests --order rand
+```
+
 ## 🤝 Contributing
 
 Contributions are welcome! Here's how you can help:
@@ -285,9 +394,18 @@ Contributions are welcome! Here's how you can help:
 - Create more sample puzzles
 - Enhance documentation
 
+### Development Setup
+
+1. Fork the repository
+2. Clone your fork
+3. Set up pre-commit hooks (optional but recommended)
+4. Make your changes following our coding style
+5. Add tests for your changes
+6. Submit a pull request
+
 ## 📜 License
 
-This project is licensed under the GPLv3.0  See the [LICENSE](LICENSE.txt) file for details.cense.
+This project is licensed under the GPLv3.0. See the [LICENSE](LICENSE.txt) file for details.
 
 ---
 
