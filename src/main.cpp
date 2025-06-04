@@ -2,7 +2,7 @@
 #include <limits>  // For std::numeric_limits
 #include <string>
 
-#include "sudokusolver.hpp"
+#include "../include/sudokusolver.hpp"
 
 void printMenu() {
     std::cout << "\n===== SUDOKU SOLVER =====\n";

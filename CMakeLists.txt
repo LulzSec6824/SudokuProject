@@ -1,160 +1,139 @@
-cmake_minimum_required(VERSION 4.0.1)
+cmake_minimum_required(VERSION 3.16)
+
+find_program(CLANG_COMPILER clang++)
+find_program(GCC_COMPILER g++)
+find_program(MSVC_COMPILER cl.exe)
+
+if (CLANG_COMPILER)
+    set(CMAKE_CXX_COMPILER ${CLANG_COMPILER})
+    message(STATUS "Using Clang compiler: ${CLANG_COMPILER}")
+elseif (GCC_COMPILER)
+    set(CMAKE_CXX_COMPILER ${GCC_COMPILER})
+    message(STATUS "Using GCC compiler: ${GCC_COMPILER}")
+elseif (MSVC_COMPILER)
+    set(CMAKE_CXX_COMPILER ${MSVC_COMPILER})
+    message(STATUS "Using MSVC compiler: ${MSVC_COMPILER}")
+else()
+    message(FATAL_ERROR "No suitable C++ compiler found (Clang, GCC, or MSVC).")
+endif()
+
 project(SudokuSolver VERSION 1.0 LANGUAGES CXX)
 
-# Set default build type to Release if not specified, e.g., by an IDE or build script
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
-  message(STATUS "CMAKE_BUILD_TYPE not set, defaulting to Release.")
-endif()
-
-# Support for cross-compilation via toolchain file
-if(CMAKE_TOOLCHAIN_FILE)
-  message(STATUS "Using toolchain file: ${CMAKE_TOOLCHAIN_FILE}")
-else()
-  message(STATUS "No toolchain file specified, configuring for native build.")
-endif()
-
-# Specify C++ standard
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Compiler selection is typically handled by CMake or a toolchain file.
-# The following manual override for Clang is removed to allow standard CMake behavior.
-# If you need to specify Clang, set CMAKE_C_COMPILER and CMAKE_CXX_COMPILER environment variables
-# or use a toolchain file.
-
-# Enable interprocedural optimization (IPO/LTO)
-include(CheckIPOSupported)
-check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_ERROR)
-if(IPO_SUPPORTED)
-  message(STATUS "IPO/LTO will be enabled for the target.")
-  # We will apply this to the target later using target_property
-else()
-  message(STATUS "IPO/LTO not supported: ${IPO_ERROR}")
-  set(IPO_SUPPORTED FALSE) # Ensure IPO_SUPPORTED is defined as FALSE if not supported
-endif()
-
-# Common warning flags (will be applied to the target)
-set(COMMON_WARNING_FLAGS "-Wall -Wextra -Wpedantic")
-
-# Option for architecture-specific optimizations
-option(ENABLE_NATIVE_OPTIMIZATIONS "Enable architecture-specific optimizations (e.g., -march=native)" OFF)
-
-# Option for aggressive math optimizations
-option(ENABLE_FAST_MATH "Enable aggressive floating-point optimizations (e.g., -ffast-math)" OFF)
-
-# Performance optimization flags will be set per-target and per-compiler
-# General Release flags for GCC/Clang
-set(GCC_CLANG_RELEASE_FLAGS "-O3 -DNDEBUG")
-# General Release flags for MSVC
-set(MSVC_RELEASE_FLAGS "/O2 /DNDEBUG /Oi /Ot /Oy") # /GL is for LTO, handled by CMAKE_INTERPROCEDURAL_OPTIMIZATION
-
-# Additional aggressive GCC/Clang flags (can be made optional or configured)
-set(GCC_CLANG_AGGRESSIVE_FLAGS "-funroll-loops -fomit-frame-pointer -fmerge-all-constants -ftree-vectorize")
-# -fstrict-aliasing and -fstrict-overflow can be added if code is known to be safe
-# -falign-functions=16 is a cache optimization
-
-# PGO flags are handled later
-
-# Set default build type to Release if not specified
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
-endif()
-
-# Add options for Profile-Guided Optimization (PGO)
-option(ENABLE_PGO_GENERATE "Enable PGO generation phase" OFF)
-option(ENABLE_PGO_USE "Enable PGO use phase" OFF)
-
-if(ENABLE_PGO_GENERATE)
-  message(STATUS "Configuring for PGO generation phase")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-generate")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-generate")
-elseif(ENABLE_PGO_USE)
-  message(STATUS "Configuring for PGO use phase")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-use -fprofile-correction")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-use")
-endif()
-
-# Include directories will be set per-target
-
-# Add source files
-set(SOURCES
-    src/main.cpp
-    src/SudokuSolver.cpp
-)
-
-# Create executable
+file(GLOB SOURCES "src/*.cpp")
 add_executable(sudoku_solver ${SOURCES})
 
-# Apply C++ standard to the target
-target_compile_features(sudoku_solver PRIVATE cxx_std_17)
+target_include_directories(sudoku_solver PUBLIC include)
 
-# Apply include directories to the target
-target_include_directories(sudoku_solver PUBLIC ${PROJECT_SOURCE_DIR}/include)
-
-# Apply IPO/LTO to the target if supported
-if(IPO_SUPPORTED)
-  set_property(TARGET sudoku_solver PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
 endif()
 
-# Apply compile options based on compiler and build type
-target_compile_options(sudoku_solver PRIVATE
-    $<$<CXX_COMPILER_ID:GNU,Clang>:${COMMON_WARNING_FLAGS}>
-    $<$<CXX_COMPILER_ID:MSVC>:/W4> # /W4 is roughly equivalent to -Wall -Wextra for MSVC
-)
-
-target_compile_options(sudoku_solver PRIVATE
-    $<$<AND:$<CONFIG:Release>,$<CXX_COMPILER_ID:GNU,Clang>>:${GCC_CLANG_RELEASE_FLAGS} ${GCC_CLANG_AGGRESSIVE_FLAGS}>
-    $<$<AND:$<CONFIG:Release>,$<CXX_COMPILER_ID:MSVC>>:${MSVC_RELEASE_FLAGS}>
-)
-
-if(ENABLE_NATIVE_OPTIMIZATIONS)
-  target_compile_options(sudoku_solver PRIVATE
-    $<$<AND:$<CONFIG:Release>,$<CXX_COMPILER_ID:GNU,Clang>>:-march=native>
-    # MSVC equivalent for -march=native could be /arch:AVX2, but requires knowing CPU features.
-    # For simplicity, we'll omit a direct MSVC equivalent here or it could be a separate option.
-  )
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+        target_compile_options(sudoku_solver PRIVATE /O2 /Ob2 /Oi /Ot /Oy /GS-)
+        target_link_options(sudoku_solver PRIVATE /LTCG /OPT:REF,ICF)
+    else()
+        target_compile_options(sudoku_solver PRIVATE -O3 -DNDEBUG -funroll-loops -march=native -fno-exceptions -fno-rtti)
+    endif()
 endif()
 
-if(ENABLE_FAST_MATH)
-  target_compile_options(sudoku_solver PRIVATE
-    $<$<AND:$<CONFIG:Release>,$<CXX_COMPILER_ID:GNU,Clang>>:-ffast-math>
-    $<$<AND:$<CONFIG:Release>,$<CXX_COMPILER_ID:MSVC>>:/fp:fast>
-  )
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+
+    else()
+        include(CheckIPOSupported)
+        check_ipo_supported(RESULT ipo_supported)
+        if (ipo_supported)
+            set_property(TARGET sudoku_solver PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+            target_link_options(sudoku_solver PRIVATE -flto)
+        endif()
+    endif()
 endif()
 
-# Apply PGO flags if enabled
-if(ENABLE_PGO_GENERATE)
-  message(STATUS "Configuring for PGO generation phase")
-  target_compile_options(sudoku_solver PRIVATE -fprofile-generate)
-  target_link_libraries(sudoku_solver PRIVATE -fprofile-generate) # For GCC/Clang, linker also needs this
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    target_compile_options(sudoku_solver PRIVATE /GL)
-    target_link_options(sudoku_solver PRIVATE /GENPROFILE)
-  endif()
-elseif(ENABLE_PGO_USE)
-  message(STATUS "Configuring for PGO use phase")
-  target_compile_options(sudoku_solver PRIVATE -fprofile-use -fprofile-correction)
-  target_link_libraries(sudoku_solver PRIVATE -fprofile-use) # For GCC/Clang
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    target_compile_options(sudoku_solver PRIVATE /GL)
-    target_link_options(sudoku_solver PRIVATE /USEPROFILE)
-  endif()
-endif()
+# Explanation of CMakeLists.txt Configuration
+# This section provides a detailed explanation of the settings and optimizations applied in this CMakeLists.txt file.
 
-# Enable code coverage option
-option(ENABLE_COVERAGE "Enable coverage reporting" OFF)
+# 1. CMake Minimum Required Version:
+#    cmake_minimum_required(VERSION 3.16)
+#    Specifies the minimum version of CMake required to configure and build the project. Version 3.16 or newer is needed for features used here.
 
-# Linker optimization flags
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-  target_link_options(sudoku_solver PRIVATE "-Wl,--gc-sections")
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  # For MSVC, /OPT:REF (remove unreferenced functions/data) and /OPT:ICF (fold identical COMDATs)
-  # are typically enabled with /O2 or when /GL (LTO) is used.
-  # We can explicitly add them for Release builds if needed.
-  target_link_options(sudoku_solver PRIVATE $<$<CONFIG:Release>:/OPT:REF /OPT:ICF>)
-endif()
+# 2. Compiler Selection Priority:
+#    This block ensures that the project is built with a preferred C++ compiler in the following order:
+#    - Clang (clang++)
+#    - GCC (g++)
+#    - MSVC (cl.exe)
+#    If none of these compilers are found, CMake will issue a fatal error, preventing the build.
+#    find_program(CLANG_COMPILER clang++)
+#    find_program(GCC_COMPILER g++)
+#    find_program(MSVC_COMPILER cl.exe)
+#    if (CLANG_COMPILER) ... elseif (GCC_COMPILER) ... elseif (MSVC_COMPILER) ... else() ... endif()
+#    The selected compiler is then set as CMAKE_CXX_COMPILER.
 
-# Install target
-install(TARGETS sudoku_solver DESTINATION bin)
+# 3. Project Definition:
+#    project(SudokuSolver VERSION 1.0 LANGUAGES CXX)
+#    Defines the project name as "SudokuSolver", sets its version to 1.0, and specifies that it uses the C++ language.
+
+# 4. C++ Standard:
+#    set(CMAKE_CXX_STANDARD 17)
+#    set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+#    set(CMAKE_CXX_EXTENSIONS OFF)
+#    Enforces the use of the C++17 standard. CMAKE_CXX_STANDARD_REQUIRED TRUE ensures that the build fails if C++17 is not supported.
+#    CMAKE_CXX_EXTENSIONS OFF disables compiler-specific extensions to ensure strict standard compliance and better portability.
+
+# 5. Source Files and Executable:
+#    file(GLOB SOURCES "src/*.cpp")
+#    add_executable(sudoku_solver ${SOURCES})
+#    Collects all .cpp files in the 'src' directory into the SOURCES variable and creates an executable named 'sudoku_solver' from them.
+
+# 6. Include Directories:
+#    target_include_directories(sudoku_solver PUBLIC include)
+#    Adds the 'include' directory to the list of directories where the compiler searches for header files. PUBLIC means it's also exposed to targets that link against 'sudoku_solver'.
+
+# 7. Default Build Type:
+#    if (NOT CMAKE_BUILD_TYPE)
+#        set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
+#    endif()
+#    If CMAKE_BUILD_TYPE is not explicitly set (e.g., via -DCMAKE_BUILD_TYPE=Debug), it defaults to "Release". This ensures that optimized builds are the default.
+
+# 8. Optimization Flags for Release Builds:
+#    This block applies aggressive optimization flags specifically for "Release" builds.
+#    if (CMAKE_BUILD_TYPE STREQUAL "Release")
+#        if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+#            target_compile_options(sudoku_solver PRIVATE /O2 /Ob2 /Oi /Ot /Oy /GS-)
+#            target_link_options(sudoku_solver PRIVATE /LTCG /OPT:REF,ICF)
+#            For MSVC, /O2 enables full optimization. Other flags like /Ob2 (inline expansion), /Oi (intrinsic functions), /Ot (favor fast code), /Oy (omit frame pointers), and /GS- (disable security checks for performance) are used.
+#            /LTCG (Link-Time Code Generation) and /OPT:REF,ICF (optimizations for redundant functions and identical COMDATs) are linking optimizations.
+#        else()
+#            target_compile_options(sudoku_solver PRIVATE -O3 -DNDEBUG -funroll-loops -march=native -fno-exceptions -fno-rtti)
+#            For GCC/Clang, -O3 enables aggressive optimizations. -DNDEBUG disables assertions. -funroll-loops unrolls loops for performance. -march=native optimizes for the host CPU architecture. -fno-exceptions and -fno-rtti disable exceptions and RTTI for smaller code size and potentially faster execution, assuming they are not used by the application.
+#        endif()
+#    endif()
+
+# 9. Link Time Optimization (LTO)/Interprocedural Optimization (IPO):
+#    This section enables LTO, which performs whole-program optimization by allowing the linker to optimize across different compilation units.
+#    if (CMAKE_BUILD_TYPE STREQUAL "Release")
+#        if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+#            MSVC's LTO is primarily handled by the /LTCG flag, which is already included in the compile and link options for MSVC.
+#        else()
+#            include(CheckIPOSupported)
+#            check_ipo_supported(RESULT ipo_supported)
+#            if (ipo_supported)
+#                set_property(TARGET sudoku_solver PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+#                target_link_options(sudoku_solver PRIVATE -flto)
+#                For GCC/Clang, -flto enables LTO. CheckIPOSupported is used to verify if the compiler and linker support LTO.
+#            endif()
+#        endif()
+#    endif()
+
+# 10. Advanced Optimization: Profile-Guided Optimization (PGO) (Commented Out):
+#     This section provides information on PGO, an advanced optimization technique that can yield significant performance improvements.
+#     PGO involves building the code with instrumentation, running it with typical workloads to collect profile data, and then rebuilding it using that data for highly specific optimizations.
+#     It is more complex to set up and manage but can offer superior performance for critical applications.
+
+# 11. Optional: Precompiled Headers (PCH) (Commented Out):
+#     This section provides an example of how to enable Precompiled Headers. PCH can significantly speed up compilation times for large projects by pre-compiling frequently used headers.
+#     To use this, you would uncomment the relevant lines and specify your common header file (e.g., "stdafx.h" or "pch.h").
