@@ -1,10 +1,12 @@
 # 🧩 Sudoku Solver
 
 <div align="center">
-![9x9 Sudoku Grid](https://img.shields.io/badge/9x9-Sudoku%20Grid-blue)
-![C++17](https://img.shields.io/badge/C%2B%2B-17-00599C?logo=c%2B%2B)
-![License](https://img.shields.io/badge/License-GPLv3-blue)
-![Build System](https://img.shields.io/badge/Build%20System-CMake-064F8C?logo=cmake)
+
+[![9x9 Sudoku Grid](https://img.shields.io/badge/9x9-Sudoku%20Grid-blue)]()
+[![C++17](https://img.shields.io/badge/C%2B%2B-17-00599C?logo=c%2B%2B)]()
+[![License](https://img.shields.io/badge/License-GPLv3-blue)]()
+[![Build System](https://img.shields.io/badge/Build%20System-CMake-064F8C?logo=cmake)]()
+
 </div>
 
 **A lightning-fast Sudoku puzzle solver built with modern C++17**
@@ -123,13 +125,12 @@ This project's CMake configuration is set up for high performance. Key optimizat
 -   **Profile-Guided Optimization (PGO)**: While not enabled by default due to its complexity, the CMake setup supports PGO. This advanced technique involves building with instrumentation, running with typical workloads to collect data, and then rebuilding for highly specific optimizations.
 -   **Strict compiler warning flags**: Configured to ensure high code quality.
 
-## 📜 License
-
-This project is licensed under the GPLv3.0. See <mcfile name="LICENSE.txt" path="d:\LINUX DIST\Cpp\New folder\SudokuSolver\LICENSE.txt"></mcfile> for full details.
-
 ---
+
 <div align="center">
-  **Built with C++17 and recursive algorithms**
-  <br>
-  <b>High-performance binary with CMake optimizations</b>
+
+**Built with C++17 and recursive algorithms**
+
+**High-performance binary with CMake optimizations**
+
 </div>
