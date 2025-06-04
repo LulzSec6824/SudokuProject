@@ -1,7 +1,7 @@
 # 🧩 Sudoku Solver
 
 <div align="center">
-![Sudoku Grid](https://img.shields.io/badge/9x9-Sudoku%20Grid-blue)
+![9x9 Sudoku Grid](https://img.shields.io/badge/9x9-Sudoku%20Grid-blue)
 ![C++17](https://img.shields.io/badge/C%2B%2B-17-00599C?logo=c%2B%2B)
 ![License](https://img.shields.io/badge/License-GPLv3-blue)
 ![Build System](https://img.shields.io/badge/Build%20System-CMake-064F8C?logo=cmake)
@@ -48,51 +48,34 @@ This project is licensed under the GPLv3.0. See `LICENSE.txt` for full details.
 
 ## 🛠️ Build Instructions
 
-### Linux/macOS with Clang/GCC
+### Cross-Platform with CMake (Linux/macOS/Windows)
 
 ```bash
 # Clone & enter directory
 git clone https://github.com/LulzSec6824/SudokuSolver.git
-# Use forward slashes in PowerShell too
 cd SudokuSolver
 
 # Create build directory
 mkdir -p build && cd build
 
-# Configure with Clang
-cmake -DCMAKE_BUILD_TYPE=Release ..
-# Or specify compilers:
-cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Release ..
+# Configure CMake (defaults to Release build and prioritizes Clang/GCC)
+# For Windows, CMake will automatically select an appropriate generator (e.g., Visual Studio, MinGW Makefiles)
+cmake ..
 
-# Build with current CPU optimizations
+# To explicitly specify a compiler (e.g., Clang on Windows):
+# cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
+
+# To specify a generator (e.g., for MinGW on Windows):
+# cmake -G "MinGW Makefiles" ..
+
+# Build the project
 cmake --build .
-# Or use opt.sh script:
-../opt.sh --native-opts
 
-# Run the solver
+# Run the solver (adjust executable name for Windows: .\sudoku_solver.exe)
 ./sudoku_solver
 ```
 
-### Windows with MinGW/MSVC/Clang
-
-```powershell
-# For MinGW:
-cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release ..
-mingw32-make
-
-# For MSVC:
-cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ..
-nmake
-
-# For Clang on Windows:
-cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Release ..
-cmake --build . --config Release
-
-# Run the solver
-.\sudoku_solver.exe
-```
-
-### 🦸 Using opt.sh Script
+### 🦸 Using opt.sh Script (Linux/macOS)
 
 ```bash
 # Basic build:
@@ -100,6 +83,7 @@ cmake --build . --config Release
 
 # Custom build with specific generator:
 ./opt.sh --build-dir my_build --generator "Ninja Multi-Config"
+
 # Optimize for current CPU:
 ./opt.sh --native-opts
 ```
@@ -118,44 +102,30 @@ cmake --build . --config Release
 0 0 0 0 8 0 0 7 9
 ```
 
-## 🧪 Testing & Troubleshooting
+## 🧪 Troubleshooting & Advanced Options
 
-Ensure you have developer packages installed if facing build issues. See [Testing](#testing) section below:
-- CMake minimum version requirement
-- Compiler-specific installation instructions
-- Script execution permissions
+This section covers common build issues and advanced optimization techniques.
 
+### Common Issues & Solutions
 
-## 📜 Specific Error Solutions
+1.  **"CMake not found"**: Ensure CMake is installed and added to your system's PATH. On Linux, use `sudo apt install cmake` or equivalent. On Windows, install from the official CMake website.
+2.  **"Compiler not found"**: Verify your C++ compiler (Clang, GCC, or MSVC) is installed and accessible via your system's PATH. For MinGW on Windows, ensure `C:\msys64\ucrt64\bin` (or similar) is in your PATH.
+3.  **"Build fails with generator issues"**: Ensure the CMake generator matches your compiler environment. For example, use `-G "MinGW Makefiles"` for MinGW or let CMake auto-detect for Visual Studio.
+4.  **"Missing libraries"**: Install necessary development packages through your system's package manager (e.g., `build-essential` on Debian/Ubuntu).
 
-1. "CMake not found": Install via apt `sudo apt install build-essential` or MSYS2 equivalent
-2. "MinGW/GCC not found": Ensure PATH includes `C:\msys64\ucrt64\bin`
-3. "Build fails with generator issues": Match generator to your compiler environment
-4. "Missing libraries": Install development packages through your package manager
+### Advanced Optimization Techniques
 
-## 📋 Optimize with -march=native
+This project's CMake configuration is set up for high performance. Key optimizations include:
 
-When building on supported compilers, use the `opt.sh` script with `--native-opts` flag to enable architecture-specific optimizations. Building on Windows requires equivalent `/arch:AVX2` flags.
-
-## 🧘 Advanced Options
-
-For performance-tuning CMake, this project supports:
-- Inter-Procedure Optimization (IPO)/Link Time Optimization (LTO)
-- Release-specific compiler flags (-O3/NDEBUG)
-- Profile-Guided Optimization (PGO) generation and usage
-- Strict compiler warning flags for code quality
-
-## 🧩 Build Errors?
-
-Check:
-1. Your environment's PATH for required tools
-2. Correct CMake generator selection
-3. Minimum required CMake version
-4. Script execution permissions for opt.sh
+-   **Inter-Procedural Optimization (IPO)/Link Time Optimization (LTO)**: Enabled for Release builds to allow the compiler to optimize across different compilation units.
+-   **Release-specific compiler flags**: Aggressive optimization flags like `-O3` (GCC/Clang) or `/O2` (MSVC) and `-DNDEBUG` are applied for Release builds.
+-   **Native CPU optimizations (`-march=native`)**: The `opt.sh` script supports this flag to optimize for your specific CPU architecture. Equivalent flags like `/arch:AVX2` might be needed for MSVC on Windows.
+-   **Profile-Guided Optimization (PGO)**: While not enabled by default due to its complexity, the CMake setup supports PGO. This advanced technique involves building with instrumentation, running with typical workloads to collect data, and then rebuilding for highly specific optimizations.
+-   **Strict compiler warning flags**: Configured to ensure high code quality.
 
 ## 📜 License
 
-GPLv3.0 - See [LICENSE](LICENSE.txt) for full text
+This project is licensed under the GPLv3.0. See <mcfile name="LICENSE.txt" path="d:\LINUX DIST\Cpp\New folder\SudokuSolver\LICENSE.txt"></mcfile> for full details.
 
 ---
 <div align="center">
